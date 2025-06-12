@@ -25,7 +25,6 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const handleConfirmLogout = () => {
     dispatch(logout());
     setShowModal(false);
-    // toast.success("User logged out successfully");
     router.push("/");
   };
 
