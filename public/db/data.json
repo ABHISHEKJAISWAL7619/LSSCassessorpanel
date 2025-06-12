@@ -1,0 +1,64 @@
+{
+  "navigation": [
+    {
+      "icon": "ri-dashboard-3-line",
+      "route": "/",
+      "label": "dashboard"
+    },
+    {
+      "icon": "ri-question-answer-line",
+      "route": "/daily-report",
+      "label": "daily report"
+    }
+  ],
+  "othernav": [
+    {
+      "icon": "ri-settings-5-line",
+      "route": "/settings",
+      "label": "settings"
+    }
+   
+  ],
+  "stats": [
+    {
+      "title": "total students",
+      "span": "assessed",
+      "icon": "/icon/users.png",
+      "count": "8, 689",
+      "growth": "8.5",
+      "timeline": "yesterday"
+    },
+    {
+      "title": "overall pass %",
+      "span": "",
+      "icon": "/icon/grow.png",
+      "count": "98 %",
+      "growth": "1.3",
+      "timeline": "last week"
+    },
+    {
+      "title": "average marks",
+      "span": "theory",
+      "icon": "/icon/product.png",
+      "count": "87 %",
+      "growth": "4.3",
+      "timeline": "yesterday"
+    },
+    {
+      "title": "average marks",
+      "span": "practical",
+      "icon": "/icon/box.png",
+      "count": "92 %",
+      "growth": "1.8",
+      "timeline": "yesterday"
+    },
+    {
+      "title": "total batch",
+      "span": "assessed",
+      "icon": "/icon/add.png",
+      "count": "24",
+      "growth": "8.5",
+      "timeline": "last month"
+    }
+  ]
+}
