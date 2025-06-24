@@ -2,17 +2,15 @@
 
 import Image from "next/image";
 import Input from "../atoms/Input";
-import Select from "../atoms/Select";
-import Textarea from "../atoms/Textarea";
 import { useDispatch } from "react-redux";
 import { getloginuser, updateloginuser } from "@/redux/slice/user-slice";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import FileUploader from "../common/FileUploader";
+import useFile from "@/hooks/useFile";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const [showUploader, setShowUploader] = useState(false);
+  const { uploadFile } = useFile();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -24,7 +22,10 @@ const Profile = () => {
     avatar: "",
   });
 
-  // Fetch user details from backend and set form data
+  // Upload state to show loading indicator
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // Fetch user details
   const getuserdetails = async () => {
     const res = await dispatch(getloginuser());
     const user = res.payload?.user;
@@ -36,7 +37,7 @@ const Profile = () => {
         mobile: user.mobile || "",
         email: user.email || "",
         avatar: user.avatar || "",
-        role: user.role || "", // Include role if needed
+        role: user.role || "",
       });
     }
   };
@@ -45,16 +46,47 @@ const Profile = () => {
     getuserdetails();
   }, []);
 
-  // Handle form update
+  // Handle profile update
   const handleupdate = async (e) => {
     e.preventDefault();
+    if (uploadingPhoto) {
+      toast.error("Please wait until photo upload completes");
+      return;
+    }
     const res = await dispatch(updateloginuser(formData));
     if (res.error) {
       toast.error("Update failed. Please try again.");
     } else {
       toast.success("User profile updated successfully");
-      // Refetch user details to update avatar and other data permanently
       await getuserdetails();
+    }
+  };
+
+  // Handle image upload with uploading state
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingPhoto(true); // Start uploading
+    try {
+      const result = await uploadFile(file);
+      const imageUrl =
+        result?.image ||
+        result?.url ||
+        result?.secure_url ||
+        (typeof result === "string" && result);
+
+      if (imageUrl) {
+        setFormData((prev) => ({ ...prev, avatar: imageUrl }));
+        toast.success("Profile photo uploaded");
+      } else {
+        toast.error("Upload failed: Invalid response from server");
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Upload error");
+    } finally {
+      setUploadingPhoto(false); // Done uploading
     }
   };
 
@@ -62,12 +94,23 @@ const Profile = () => {
     <section className="space-y-6">
       <h2 className="font-bold text-3xl">Profile Information</h2>
       <div className="bg-white p-3 lg:p-4 rounded-xl border-quinary border">
-        <form className="lg:w-[60%] space-y-4 mx-auto">
+        <form className="lg:w-[60%] space-y-4 mx-auto" onSubmit={handleupdate}>
           {/* Avatar Upload */}
-          <div className="flex flex-col gap-2 justify-center items-center">
-            <div
-              className="cursor-pointer relative"
-              onClick={() => setShowUploader(true)}
+          <div className="flex flex-col gap-2 justify-center items-center relative">
+            <input
+              type="file"
+              accept="image/*"
+              id="avatar-upload"
+              className="hidden"
+              onChange={handleImageUpload}
+              disabled={uploadingPhoto}
+            />
+            <label
+              htmlFor="avatar-upload"
+              className={`cursor-pointer ${
+                uploadingPhoto ? "opacity-50 pointer-events-none" : ""
+              }`}
+              title={uploadingPhoto ? "Uploading photo..." : "Upload Photo"}
             >
               <Image
                 className="w-24 h-24 rounded-full object-cover border"
@@ -77,40 +120,24 @@ const Profile = () => {
                 height={100}
               />
               <span className="text-[#4379EE] text-center block pt-2">
-                Upload Photo
+                {uploadingPhoto ? "Uploading..." : "Upload Photo"}
               </span>
-            </div>
-
-            {showUploader && (
-              <div className="w-24 h-18 p-4 border rounded-xl mt-4">
-                <FileUploader
-                  onSuccess={(fileData) => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      avatar: fileData?.image,
-                    }));
-                    setShowUploader(false);
-                    toast.success("Profile photo uploaded");
-                  }}
-                  onDelete={() => {
-                    setFormData((prev) => ({
-                      ...prev,
-                      avatar: "",
-                    }));
-                    setShowUploader(false);
-                    toast.success("Profile photo removed");
-                  }}
-                />
+            </label>
+            {uploadingPhoto && (
+              <div className="absolute top-28 text-blue-600 font-semibold">
+                Uploading photo...
               </div>
             )}
           </div>
 
+          {/* Input Fields */}
           <Input
             label={"Full Name"}
             icon={"ri-user-smile-line"}
             placeholder={"Enter your full name"}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            disabled={uploadingPhoto}
           />
 
           <Input
@@ -120,6 +147,7 @@ const Profile = () => {
             onChange={(e) =>
               setFormData({ ...formData, employeeId: e.target.value })
             }
+            disabled={uploadingPhoto}
           />
 
           <Input
@@ -130,6 +158,7 @@ const Profile = () => {
             onChange={(e) =>
               setFormData({ ...formData, specialization: e.target.value })
             }
+            disabled={uploadingPhoto}
           />
 
           <div className="flex flex-col lg:flex-row items-center gap-4">
@@ -141,6 +170,7 @@ const Profile = () => {
               onChange={(e) =>
                 setFormData({ ...formData, mobile: e.target.value })
               }
+              disabled={uploadingPhoto}
             />
             <Input
               label={"Email Address"}
@@ -150,18 +180,21 @@ const Profile = () => {
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
+              disabled={uploadingPhoto}
             />
             <Input
               label={"Role"}
-              icon={"ri-mail-line"}
+              icon={"ri-user-settings-line"}
               placeholder={"Assessor/Trainer"}
               value={formData.role}
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value })
               }
+              disabled={uploadingPhoto}
             />
           </div>
 
+          {/* Info Box */}
           <div className="border-[#BFDBFE] rounded-xl gap-2 border p-4 bg-[#EFF6FF]">
             <span className="space-x-2 flex gap-2 items-center text-[#1E40AF] font-medium text-sm">
               <Image
@@ -180,6 +213,7 @@ const Profile = () => {
             </ul>
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-end pt-6 gap-4">
             <button
               type="button"
@@ -191,16 +225,18 @@ const Profile = () => {
                   specialization: "",
                   mobile: "",
                   email: "",
+                  role: "",
                   avatar: "",
                 })
               }
+              disabled={uploadingPhoto}
             >
               Clear Form
             </button>
             <button
-              onClick={handleupdate}
-              className="bg-primary text-white py-2 px-4 rounded-md"
               type="submit"
+              className="bg-primary text-white py-2 px-4 rounded-md"
+              disabled={uploadingPhoto}
             >
               Update Info
             </button>
