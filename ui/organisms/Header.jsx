@@ -35,25 +35,24 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
       </div>
 
       <div className="flex w-2/3 flex-row items-center justify-end gap-4">
-        <Link href={'/notification'}><i className="ri-notification-3-fill ri-lg text-primary"></i></Link> 
-        <Image className="w-10 rounded-sm h-6" src={'/img/india.png'} alt="flag" width={200} height={100} />
-        <select className="text-[#565656] text-sm outline-0 w-18" name="" id="">
-            <option value="">English</option>
-            <option value="">Hindi</option>
-            <option value="">Odia</option>
-        </select>
-       <Link href={'/profile'}> <Image
-          className="w-10 shrink-0 h-10 rounded-full object-cover"
-          src="/img/profile.jpg"
-          alt="profile"
-          width="100"
-          height="100"
-        /></Link> 
-        <div className="flex shrink-0 flex-col justify-end">
-          <p className="text-sm font-semibold text-secondary">Moni Roy</p>
-          <p className="text-xs text-[#565656] ">Assessor</p>
-        </div>
-        <i className="ri-arrow-down-s-line hidden lg:flex text-secondary border border-[#565656] rounded-full  justify-center items-center w-4 h-4 "></i>
+        <Image
+          className="w-10 rounded-sm h-6"
+          src={"/img/india.png"}
+          alt="flag"
+          width={200}
+          height={100}
+        />
+
+        <Link href={"/profile"}>
+          {" "}
+          <Image
+            className="w-10 shrink-0 h-10 rounded-full object-cover"
+            src="/img/profile.jpg"
+            alt="profile"
+            width="100"
+            height="100"
+          />
+        </Link>
       </div>
     </header>
   );
