@@ -63,6 +63,37 @@ export const getallbatchAssessment = createAsyncThunk(
     }
   }
 );
+
+export const deletebatchAssessment = createAsyncThunk(
+  "delete/batchAssessment",
+  async (id, { rejectWithValue }) => {
+    const token = Cookies.get("token");
+    if (!token) {
+      return rejectWithValue({ message: "Unauthorized: No token found" });
+    }
+
+    try {
+      const { data } = await axios.delete(
+        `${API_BASE_URL}api/assessor/batchAssessment/${id}`,
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("batchAssessment deleted:", data);
+      return data;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue({
+        message: error?.response?.data?.message || "Failed to delete",
+      });
+    }
+  }
+);
+
 const initialState = {
   batches: [],
   loading: false,
