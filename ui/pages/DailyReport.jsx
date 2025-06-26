@@ -110,7 +110,6 @@ const DailyReport = () => {
             </tbody>
           </table>
 
-          {/* Pagination with Current Page Number */}
           <div className="flex justify-end items-center mt-4 space-x-2">
             <button
               className="px-3 py-1 border rounded disabled:opacity-50"

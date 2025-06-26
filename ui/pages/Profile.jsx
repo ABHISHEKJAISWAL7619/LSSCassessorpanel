@@ -49,16 +49,21 @@ const Profile = () => {
   // Handle profile update
   const handleupdate = async (e) => {
     e.preventDefault();
-    if (uploadingPhoto) {
-      toast.error("Please wait until photo upload completes");
-      return;
-    }
-    const res = await dispatch(updateloginuser(formData));
-    if (res.error) {
-      toast.error("Update failed. Please try again.");
-    } else {
-      toast.success("User profile updated successfully");
-      await getuserdetails();
+    try {
+      if (uploadingPhoto) {
+        toast.error("Please wait until photo upload completes");
+        return;
+      }
+      const res = await dispatch(updateloginuser(formData));
+      console.log(res);
+      if (res.payload) {
+        toast.success(res.payload.message);
+      } else {
+        toast.success(res.payload.message);
+        await getuserdetails();
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
@@ -119,15 +124,15 @@ const Profile = () => {
                 width={100}
                 height={100}
               />
-              <span className="text-[#4379EE] text-center block pt-2">
+              <span className="text-blue-700 text-center block pt-2">
                 {uploadingPhoto ? "Uploading..." : "Upload Photo"}
               </span>
             </label>
-            {uploadingPhoto && (
+            {/* {uploadingPhoto && (
               <div className="absolute top-28 text-blue-600 font-semibold">
                 Uploading photo...
               </div>
-            )}
+            )} */}
           </div>
 
           {/* Input Fields */}
@@ -195,7 +200,7 @@ const Profile = () => {
           </div>
 
           {/* Info Box */}
-          <div className="border-[#BFDBFE] rounded-xl gap-2 border p-4 bg-[#EFF6FF]">
+          {/* <div className="border-[#BFDBFE] rounded-xl gap-2 border p-4 bg-[#EFF6FF]">
             <span className="space-x-2 flex gap-2 items-center text-[#1E40AF] font-medium text-sm">
               <Image
                 className="w-4 h-4"
@@ -205,13 +210,13 @@ const Profile = () => {
                 alt="info"
               />
               Tips for filling the form
-            </span>
-            <ul className="list-disc text-sm ps-10 text-[#1D4ED8]">
+            </span> */}
+            {/* <ul className="list-disc text-sm ps-10 text-[#1D4ED8]">
               <li>All fields marked with * are mandatory</li>
               <li>Use your official email address</li>
               <li>Phone number should include country code</li>
-            </ul>
-          </div>
+            </ul> */}
+          {/* </div> */}
 
           {/* Buttons */}
           <div className="flex justify-end pt-6 gap-4">
