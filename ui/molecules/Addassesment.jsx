@@ -1,9 +1,7 @@
-// components/AddAssessmentForm.jsx
 "use client";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Input from "../atoms/Input";
-import Select from "../atoms/Select";
 import Textarea from "../atoms/Textarea";
 import toast from "react-hot-toast";
 import { getallassessor } from "@/redux/slice/user-slice";
@@ -19,7 +17,7 @@ const Addassement = () => {
   const [batches, setBatches] = useState([]);
   const [error, setError] = useState("");
 
-  const [formData, setFormData] = useState({
+  const initialState = {
     batchId: "",
     assessor: "",
     assessorName: "",
@@ -34,7 +32,9 @@ const Addassement = () => {
     candidatesPassed: "",
     avgScore: "",
     remarks: "",
-  });
+  };
+
+  const [formData, setFormData] = useState(initialState);
 
   const fetchData = async () => {
     const res1 = await dispatch(getallassessor());
@@ -85,16 +85,15 @@ const Addassement = () => {
       router.push("/daily-report");
     } else {
       toast.error(res.payload?.message || "Failed to create");
-      return;
     }
   };
 
   const handleAssessorChange = (e) => {
-    const name = e.target.value;
-    const selected = assessors.find((a) => a.name === name);
+    const selectedId = e.target.value;
+    const selected = assessors.find((a) => a._id === selectedId);
     setFormData((prev) => ({
       ...prev,
-      assessor: selected?._id || "",
+      assessor: selectedId,
       assessorName: selected?.name || "",
       assessorId: selected?.assessorId || "",
     }));
@@ -104,29 +103,43 @@ const Addassement = () => {
     <div className="bg-white p-6 rounded-xl max-w-3xl mx-auto mt-6">
       <h2 className="text-xl font-semibold mb-4">Add Assessment</h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
-        <Select
-          label="Batch Name"
-          value={
-            batches.find((b) => b._id === formData.batchId)?.name ||
-            "Select Batch"
-          }
-          onChange={(e) => {
-            const selected = batches.find((b) => b.name === e.target.value);
-            setFormData((prev) => ({ ...prev, batchId: selected?._id || "" }));
-          }}
-          options={["Select Batch", ...batches.map((b) => b.name)]}
-        />
+        {/* ✅ Batch dropdown (shows name, sends _id) */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Batch Name</label>
+          <select
+            className="w-full  bg-background outline-0 p-2 border border-[#D1D5DB] rounded-lg"
+            value={formData.batchId}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, batchId: e.target.value }))
+            }
+          >
+            <option value="">Select Batch</option>
+            {batches.map((batch) => (
+              <option key={batch._id} value={batch._id}>
+                {batch.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <Select
-          label="Assessor Name"
-          value={
-            assessors.find((a) => a._id === formData.assessor)?.name ||
-            "Select Assessor"
-          }
-          onChange={handleAssessorChange}
-          options={["Select Assessor", ...assessors.map((a) => a.name)]}
-        />
+        {/* ✅ Assessor dropdown */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Assessor</label>
+          <select
+            className="w-full bg-background outline-0 p-2 border border-[#D1D5DB] rounded-lg"
+            value={formData.assessor}
+            onChange={handleAssessorChange}
+          >
+            <option value="">Select Assessor</option>
+            {assessors.map((a) => (
+              <option key={a._id} value={a._id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
+        {/* Assessor Details */}
         <div className="flex flex-col lg:flex-row gap-4">
           <Input
             label="Assessor Name"
@@ -153,14 +166,21 @@ const Addassement = () => {
           }
         />
 
-        <Select
-          label="Assessment Type"
-          value={formData.assessmentType}
-          onChange={(e) =>
-            setFormData({ ...formData, assessmentType: e.target.value })
-          }
-          options={["Theory", "Practical"]}
-        />
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Assessment Type
+          </label>
+          <select
+            className="w-full bg-background outline-0 p-2 border border-[#D1D5DB] rounded-lg"
+            value={formData.assessmentType}
+            onChange={(e) =>
+              setFormData({ ...formData, assessmentType: e.target.value })
+            }
+          >
+            <option value="Theory">Theory</option>
+            <option value="Practical">Practical</option>
+          </select>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-4">
           <Input
@@ -237,7 +257,7 @@ const Addassement = () => {
           <button
             type="button"
             className="border border-gray-300 px-4 py-2 rounded"
-            onClick={() => setFormData({ ...formData, ...initialState })}
+            onClick={() => setFormData(initialState)}
           >
             Clear
           </button>

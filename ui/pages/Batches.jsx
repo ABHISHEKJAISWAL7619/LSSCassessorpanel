@@ -2,49 +2,34 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { getallbatchAssessment } from "@/redux/slice/Assesment-slice";
-import { getallbatch } from "@/redux/slice/batch-slice";
+import Pagination from "../common/pagination";
 
-const Batches = () => {
+const Batches = ({ page }) => {
   const dispatch = useDispatch();
   const [assessments, setAssessments] = useState([]);
-  const [batches, setBatches] = useState([]);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const assessmentsPerPage = 8;
+  const [Count, setCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res1 = await dispatch(getallbatchAssessment());
-      if (res1.payload?.data) setAssessments(res1.payload.data);
-
-      const res2 = await dispatch(getallbatch());
-      if (res2.payload?.data) setBatches(res2.payload.data);
+      const res1 = await dispatch(
+        getallbatchAssessment({ filter: { limit: 4, page } })
+      );
+      setCount(res1.payload.count);
     };
 
     fetchData();
   }, [dispatch]);
 
-  const getBatchName = (batchId) => {
-    const batch = batches.find((b) => b._id === batchId);
-    return batch?.name || "Unknown";
-  };
-
-  // Pagination logic
-  const indexOfLast = currentPage * assessmentsPerPage;
-  const indexOfFirst = indexOfLast - assessmentsPerPage;
-  const currentAssessments = assessments.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(assessments.length / assessmentsPerPage);
-
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  const assesment = useSelector((state) => state.assesment);
+  console.log(assesment.assesment);
+  useEffect(() => {
+    if (assesment) {
+      setAssessments(assesment.assesment);
+    }
+  }, [assesment]);
 
   return (
     <section>
@@ -78,21 +63,20 @@ const Batches = () => {
                   <th>Assessor Name</th>
                   <th>Date</th>
                   <th>Students Appeared</th>
-                  <th>Students Passed</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {currentAssessments.length > 0 ? (
-                  currentAssessments.map((item) => (
+                {assessments.length > 0 ? (
+                  assessments.map((item) => (
                     <tr key={item._id} className="border-b border-quinary">
-                      <td>{getBatchName(item.batchId)}</td>
+                      <td>{item.batchId.name}</td>
                       <td>{item.assessorName}</td>
                       <td>
                         {new Date(item.assessmentDate).toLocaleDateString()}
                       </td>
                       <td>{item.totalCandidatesAppeared}</td>
-                      <td>{item.totalCandidatesPassed || "N/A"}</td>
+
                       <td>Current</td>
                     </tr>
                   ))
@@ -105,27 +89,7 @@ const Batches = () => {
                 )}
               </tbody>
             </table>
-
-            {/* Pagination Controls */}
-            <div className="flex justify-end gap-4 mt-4 items-center text-sm">
-              <button
-                onClick={handlePrev}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <span className="text-gray-600">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
+            <Pagination total={Count} pageSize={4} />
           </div>
         </div>
       </div>

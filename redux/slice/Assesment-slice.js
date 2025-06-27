@@ -37,7 +37,7 @@ export const createbatchAssessment = createAsyncThunk(
 
 export const getallbatchAssessment = createAsyncThunk(
   "create/batchAssessment",
-  async (_, { rejectWithValue }) => {
+  async ({ filter }, { rejectWithValue }) => {
     const token = Cookies.get("token");
     if (!token) {
       return rejectWithValue({ message: "Unauthorized: No token found" });
@@ -51,6 +51,7 @@ export const getallbatchAssessment = createAsyncThunk(
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          params: filter,
         }
       );
       console.log("batchAssessment fetched:", data);
@@ -95,30 +96,31 @@ export const deletebatchAssessment = createAsyncThunk(
 );
 
 const initialState = {
-  batches: [],
+  assesment: [],
   loading: false,
   error: null,
 };
 
-const batchSlice = createSlice({
-  name: "batch",
+const AssesmentSlice = createSlice({
+  name: "assesment",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getallbatch.pending, (state) => {
+
+      .addCase(getallbatchAssessment.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getallbatch.fulfilled, (state, action) => {
+      .addCase(getallbatchAssessment.fulfilled, (state, action) => {
         state.loading = false;
-        state.batches = action.payload?.data || [];
+        state.assesment = action.payload?.data || [];
       })
-      .addCase(getallbatch.rejected, (state, action) => {
+      .addCase(getallbatchAssessment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to fetch categories";
       });
   },
 });
 
-export default batchSlice.reducer;
+export default AssesmentSlice.reducer;

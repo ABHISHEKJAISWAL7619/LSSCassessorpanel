@@ -1,10 +1,11 @@
 import DailyReport from "@/ui/pages/DailyReport";
 import MainLayout from "@/ui/templates/MainLayout";
 
-const page = () => {
+const page = async ({ searchParams }) => {
+  let data = await searchParams;
   return (
     <MainLayout>
-      <DailyReport />
+      <DailyReport page={data.page} />
     </MainLayout>
   );
 };

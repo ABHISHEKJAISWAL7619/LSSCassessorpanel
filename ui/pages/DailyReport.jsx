@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getallbatchAssessment,
   deletebatchAssessment,
@@ -10,22 +10,20 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import OverlayModal from "../common/OverlayModal";
+import Pagination from "../common/pagination";
 
-const DailyReport = () => {
+const DailyReport = ({ page }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [assessments, setAssessments] = useState([]);
-  const [batches, setBatches] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
-  const itemsPerPage = 6;
-
+  const [Count, setCount] = useState();
   const fetchData = async () => {
-    const res1 = await dispatch(getallbatchAssessment());
-    const res2 = await dispatch(getallbatch());
-    if (res1.payload?.data) setAssessments(res1.payload.data);
-    if (res2.payload?.data) setBatches(res2.payload.data);
+    const res1 = await dispatch(
+      getallbatchAssessment({ filter: { limit: 4, page } })
+    );
+    setCount(res1.payload.count);
   };
 
   useEffect(() => {
@@ -44,10 +42,13 @@ const DailyReport = () => {
     setSelectedId(null);
   };
 
-  const paginatedData = assessments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const assesment = useSelector((state) => state.assesment);
+  console.log(assesment.assesment);
+  useEffect(() => {
+    if (assesment) {
+      setAssessments(assesment.assesment);
+    }
+  }, [assesment]);
 
   return (
     <section className="space-y-6 relative">
@@ -61,7 +62,7 @@ const DailyReport = () => {
         </Link>
       </div>
 
-      {paginatedData.length > 0 ? (
+      {assessments.length > 0 ? (
         <div className="bg-white p-4 rounded-xl shadow-md overflow-x-auto">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-700">
@@ -75,15 +76,10 @@ const DailyReport = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedData.map((item) => {
-                const batchName =
-                  item.batchId?.name ||
-                  batches.find((b) => b._id === String(item.batchId))?.name ||
-                  "N/A";
-
+              {assessments.map((item) => {
                 return (
                   <tr key={item._id}>
-                    <td className="py-2 text-left px-4">{batchName}</td>
+                    <td className="py-2 text-left px-4">{item.batchId.name}</td>
                     <td className="py-2 text-left px-4">
                       {new Date(item.assessmentDate).toLocaleDateString()}
                     </td>
@@ -109,28 +105,7 @@ const DailyReport = () => {
               })}
             </tbody>
           </table>
-
-          <div className="flex justify-end items-center mt-4 space-x-2">
-            <button
-              className="px-3 py-1 border rounded disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => prev - 1)}
-            >
-              Previous
-            </button>
-
-            <span className="px-3 py-1 border rounded bg-gray-100 text-gray-800">
-              {currentPage}
-            </span>
-
-            <button
-              className="px-3 py-1 border rounded disabled:opacity-50"
-              disabled={currentPage * itemsPerPage >= assessments.length}
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-            >
-              Next
-            </button>
-          </div>
+          <Pagination total={Count} pageSize={4} />
         </div>
       ) : (
         <p>No assessments found.</p>

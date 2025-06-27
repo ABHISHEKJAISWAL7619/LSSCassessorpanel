@@ -1,7 +1,23 @@
+import { getloginuser } from "@/redux/slice/user-slice";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  let dispatch = useDispatch();
+
+  const getuserdetails = async () => {
+    dispatch(getloginuser());
+  };
+
+  useEffect(() => {
+    getuserdetails();
+  }, [dispatch]);
+
+  const user = useSelector((state) => state.user);
+  // console.log();
+
   return (
     <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-5 py-3 shadow-sm md:px-8">
       <div className="flex items-center gap-4 sm:gap-0">
@@ -47,7 +63,7 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
           {" "}
           <Image
             className="w-10 shrink-0 h-10 rounded-full object-cover"
-            src="/img/profile.jpg"
+            src={user.user.avatar || "/img/profile.jpg"}
             alt="profile"
             width="100"
             height="100"
