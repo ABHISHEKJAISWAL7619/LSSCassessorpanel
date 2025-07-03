@@ -21,12 +21,25 @@ export default function LoginPage() {
   const handleSendOtp = async (e) => {
     e.preventDefault();
     const { mobile, role } = formdata;
-
+    if (!mobile) {
+      toast.error("Please enter your mobile number");
+      return;
+    }
+    if (!role) {
+      toast.error("Role is required");
+    }
+    if (role !== "assessor") {
+      toast.error("Only trainer can login in this panel.");
+    }
     try {
       const res = await dispatch(Otpsend(formdata));
-      console.log(res);
-      toast.success("OTP sent successfully");
-      router.push(`/otp-verify?mobile=${mobile}`);
+      if (res?.payload?.message) {
+        toast.success(res.payload.message);
+        router.push(`/otp-verify?mobile=${mobile}`);
+      } else {
+        console.log(res.payload);
+        toast.error(res?.payload);
+      }
     } catch (err) {
       toast.error("Failed to send OTP");
       console.error(err);
@@ -52,20 +65,6 @@ export default function LoginPage() {
               value={formdata.mobile}
               onChange={handlechange}
               placeholder="Enter mobile number"
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-1 text-gray-700">
-              Role
-            </label>
-            <input
-              type="text"
-              name="role"
-              value={formdata.role}
-              onChange={handlechange}
-              placeholder="Enter your role"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

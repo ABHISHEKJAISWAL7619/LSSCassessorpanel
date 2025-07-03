@@ -7,6 +7,7 @@ import { getloginuser, updateloginuser } from "@/redux/slice/user-slice";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useFile from "@/hooks/useFile";
+import Link from "next/link";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -22,10 +23,9 @@ const Profile = () => {
     avatar: "",
   });
 
-  // Upload state to show loading indicator
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [updating, setUpdating] = useState(false); // loading state for form
 
-  // Fetch user details
   const getuserdetails = async () => {
     const res = await dispatch(getloginuser());
     const user = res.payload?.user;
@@ -46,33 +46,50 @@ const Profile = () => {
     getuserdetails();
   }, []);
 
-  // Handle profile update
+  const validateFields = () => {
+    if (!formData.name.trim()) return "Name is required";
+    if (!formData.specialization.trim()) return "Specialization is required";
+    if (!formData.email.trim()) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) return "Invalid email format";
+    return null;
+  };
+
   const handleupdate = async (e) => {
     e.preventDefault();
+
+    if (uploadingPhoto) {
+      toast.error("Please wait until photo upload completes");
+      return;
+    }
+
+    const validationError = validateFields();
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    setUpdating(true);
     try {
-      if (uploadingPhoto) {
-        toast.error("Please wait until photo upload completes");
-        return;
-      }
       const res = await dispatch(updateloginuser(formData));
-      console.log(res);
       if (res.payload) {
-        toast.success(res.payload.message);
+        toast.success(res.payload.message || "Profile updated successfully");
       } else {
-        toast.success(res.payload.message);
-        await getuserdetails();
+        toast.error("Failed to update profile");
       }
+      await getuserdetails();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setUpdating(false);
     }
   };
 
-  // Handle image upload with uploading state
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploadingPhoto(true); // Start uploading
+    setUploadingPhoto(true);
     try {
       const result = await uploadFile(file);
       const imageUrl =
@@ -91,7 +108,7 @@ const Profile = () => {
       console.error("Upload error:", error);
       toast.error("Upload error");
     } finally {
-      setUploadingPhoto(false); // Done uploading
+      setUploadingPhoto(false);
     }
   };
 
@@ -108,12 +125,14 @@ const Profile = () => {
               id="avatar-upload"
               className="hidden"
               onChange={handleImageUpload}
-              disabled={uploadingPhoto}
+              disabled={uploadingPhoto || updating}
             />
             <label
               htmlFor="avatar-upload"
               className={`cursor-pointer ${
-                uploadingPhoto ? "opacity-50 pointer-events-none" : ""
+                uploadingPhoto || updating
+                  ? "opacity-50 pointer-events-none"
+                  : ""
               }`}
               title={uploadingPhoto ? "Uploading photo..." : "Upload Photo"}
             >
@@ -128,42 +147,34 @@ const Profile = () => {
                 {uploadingPhoto ? "Uploading..." : "Upload Photo"}
               </span>
             </label>
-            {/* {uploadingPhoto && (
-              <div className="absolute top-28 text-blue-600 font-semibold">
-                Uploading photo...
-              </div>
-            )} */}
           </div>
 
           {/* Input Fields */}
           <Input
-            label={"Full Name"}
+            label={"Full Name *"}
             icon={"ri-user-smile-line"}
             placeholder={"Enter your full name"}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            disabled={uploadingPhoto}
+            disabled={uploadingPhoto || updating}
           />
 
           <Input
             label={"Employee ID"}
             placeholder={"Enter Employee ID"}
             value={formData.employeeId}
-            onChange={(e) =>
-              setFormData({ ...formData, employeeId: e.target.value })
-            }
-            disabled={uploadingPhoto}
+            disabled // non-editable
           />
 
           <Input
-            label={"Specialization"}
+            label={"Specialization *"}
             icon={"ri-graduation-cap-line"}
             placeholder={"Enter your specialization"}
             value={formData.specialization}
             onChange={(e) =>
               setFormData({ ...formData, specialization: e.target.value })
             }
-            disabled={uploadingPhoto}
+            disabled={uploadingPhoto || updating}
           />
 
           <div className="flex flex-col lg:flex-row items-center gap-4">
@@ -172,78 +183,65 @@ const Profile = () => {
               icon={"ri-phone-line"}
               placeholder={"+91 xxx xxx xxx"}
               value={formData.mobile}
-              onChange={(e) =>
-                setFormData({ ...formData, mobile: e.target.value })
-              }
-              disabled={uploadingPhoto}
+              disabled // non-editable
             />
             <Input
-              label={"Email Address"}
+              label={"Email Address *"}
               icon={"ri-mail-line"}
               placeholder={"name@gmail.com"}
               value={formData.email}
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
               }
-              disabled={uploadingPhoto}
+              disabled={uploadingPhoto || updating}
             />
             <Input
               label={"Role"}
               icon={"ri-user-settings-line"}
               placeholder={"Assessor/Trainer"}
               value={formData.role}
-              onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value })
-              }
-              disabled={uploadingPhoto}
+              disabled // non-editable
             />
           </div>
 
-          {/* Info Box */}
-          {/* <div className="border-[#BFDBFE] rounded-xl gap-2 border p-4 bg-[#EFF6FF]">
-            <span className="space-x-2 flex gap-2 items-center text-[#1E40AF] font-medium text-sm">
-              <Image
-                className="w-4 h-4"
-                src={"/icon/i.png"}
-                width={100}
-                height={100}
-                alt="info"
-              />
-              Tips for filling the form
-            </span> */}
-            {/* <ul className="list-disc text-sm ps-10 text-[#1D4ED8]">
-              <li>All fields marked with * are mandatory</li>
-              <li>Use your official email address</li>
-              <li>Phone number should include country code</li>
-            </ul> */}
-          {/* </div> */}
-
           {/* Buttons */}
           <div className="flex justify-end pt-6 gap-4">
-            <button
+            <Link
+              href={"/"}
               type="button"
-              className="border-[#D1D5DB] rounded-md py-2 px-4 border"
-              onClick={() =>
-                setFormData({
-                  name: "",
-                  employeeId: "",
-                  specialization: "",
-                  mobile: "",
-                  email: "",
-                  role: "",
-                  avatar: "",
-                })
-              }
-              disabled={uploadingPhoto}
+              className="border-[#D1D5DB] cursor-pointer rounded-md py-2 px-4 border"
+              disabled={uploadingPhoto || updating}
             >
-              Clear Form
-            </button>
+              Cancil
+            </Link>
             <button
               type="submit"
-              className="bg-primary text-white py-2 px-4 rounded-md"
-              disabled={uploadingPhoto}
+              className="bg-primary  text-white py-2 px-4 rounded-md flex items-center gap-2"
+              disabled={uploadingPhoto || updating}
             >
-              Update Info
+              {updating && (
+                <svg
+                  className="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+              )}
+              {updating ? "Updating..." : "Update Info"}
             </button>
           </div>
         </form>

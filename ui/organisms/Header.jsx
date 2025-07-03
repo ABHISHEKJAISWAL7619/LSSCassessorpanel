@@ -40,14 +40,14 @@ const Header = ({ isSidebarOpen, setIsSidebarOpen }) => {
             />
           </svg>
         </button>
-        <div className="bg-background hidden lg:flex px-4 border border-[#D5D5D5] items-center gap-3 rounded-full ">
+        {/* <div className="bg-background hidden lg:flex px-4 border border-[#D5D5D5] items-center gap-3 rounded-full ">
           <i className="ri-search-line text-[#D5D5D5]"></i>
           <input
             className=" text-secondary outline-0 w-80 text-sm py-2"
             type="search"
             placeholder="Search"
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex w-2/3 flex-row items-center justify-end gap-4">

@@ -23,6 +23,7 @@ const DailyReport = ({ page }) => {
     const res1 = await dispatch(
       getallbatchAssessment({ filter: { limit: 4, page } })
     );
+    console.log(res1);
     setCount(res1.payload.count);
   };
 
@@ -79,16 +80,20 @@ const DailyReport = ({ page }) => {
               {assessments.map((item) => {
                 return (
                   <tr key={item._id}>
-                    <td className="py-2 text-left px-4">{item.batchId.name}</td>
                     <td className="py-2 text-left px-4">
-                      {new Date(item.assessmentDate).toLocaleDateString()}
+                      {item?.batchId?.name || "N/A"}
+                    </td>
+                    <td className="py-2 text-left px-4">
+                      {new Date(item?.assessmentDate).toLocaleDateString()}
                     </td>
                     <td className="py-2 text-left px-4">
                       {item.assessmentType}
                     </td>
-                    <td className="py-2 text-left px-4">{item.assessorName}</td>
                     <td className="py-2 text-left px-4">
-                      {item.timeOfReporting}
+                      {item?.assessorName}
+                    </td>
+                    <td className="py-2 text-left px-4">
+                      {item?.timeOfReporting}
                     </td>
                     <td className="py-2 text-left px-4">
                       <button
@@ -119,10 +124,10 @@ const DailyReport = ({ page }) => {
               <p className="text-center">
                 Do you really want to delete this assessment?
               </p>
-              <div className="flex justify-center gap-4 pt-4">
+              <div className="flex justify-center cursor-default gap-4 pt-4">
                 <button
                   onClick={confirmDelete}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
+                  className="bg-red-500 cursor-pointer text-white px-4 py-2 rounded"
                 >
                   Yes, Delete
                 </button>
@@ -131,7 +136,7 @@ const DailyReport = ({ page }) => {
                     setShowModal(false);
                     setSelectedId(null);
                   }}
-                  className="border px-4 py-2 rounded"
+                  className="border cursor-pointer px-4 py-2 rounded"
                 >
                   Cancel
                 </button>

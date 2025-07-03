@@ -35,7 +35,7 @@ const HomePage = () => {
         <CurrentBatch />
       </div>
 
-      <div className="rounded-xl shadow-lg h-96 bg-white p-4 col-span-3 ">
+      {/* <div className="rounded-xl shadow-lg h-96 bg-white p-4 col-span-3 ">
         <h2 className="text-secondary  flex items-center justify-between text-xl font-semibold">
           Certification Rate
           <select
@@ -51,7 +51,7 @@ const HomePage = () => {
         </h2>
         
         <CertificationRate />
-      </div>
+      </div> */}
       {/* <TopStudents /> */}
       {isBatch && (
         <OverlayModal

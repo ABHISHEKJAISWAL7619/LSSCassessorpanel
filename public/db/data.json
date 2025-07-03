@@ -11,14 +11,7 @@
       "label": "daily report"
     }
   ],
-  "othernav": [
-    {
-      "icon": "ri-settings-5-line",
-      "route": "/settings",
-      "label": "settings"
-    }
-   
-  ],
+  
   "stats": [
     {
       "title": "total students",

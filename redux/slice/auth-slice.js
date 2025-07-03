@@ -42,8 +42,13 @@ export const loginuser = createAsyncThunk(
         obj
       );
       console.log(data);
+      let role = data?.user?.role;
+      console.log(role);
 
-      const role = data?.data?.role;
+      if (role !== "assessor") {
+        return rejectWithValue("Only assessor can login in this panel.");
+      }
+
       const token = data.token;
       console.log(token);
 

@@ -37,7 +37,7 @@ export const createbatchAssessment = createAsyncThunk(
 
 export const getallbatchAssessment = createAsyncThunk(
   "create/batchAssessment",
-  async ({ filter }, { rejectWithValue }) => {
+  async ({ filter }={}, { rejectWithValue }) => {
     const token = Cookies.get("token");
     if (!token) {
       return rejectWithValue({ message: "Unauthorized: No token found" });
