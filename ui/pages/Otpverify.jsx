@@ -80,7 +80,7 @@ const Otpverify = ({ mobile }) => {
 
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg disabled:opacity-50"
+          className="w-full bg-blue-600 cursor-pointer hover:bg-blue-700 text-white font-semibold py-2 rounded-lg disabled:opacity-50"
           disabled={Loading}
         >
           {Loading ? "Logining in..." : "Login"}

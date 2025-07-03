@@ -12,16 +12,15 @@ const Batches = ({ page }) => {
   const [assessments, setAssessments] = useState([]);
   const [Count, setCount] = useState(0);
 
+  const fetchData = async () => {
+    const res1 = await dispatch(
+      getallbatchAssessment({ filter: { limit: 8, page } })
+    );
+    setCount(res1.payload.count);
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      const res1 = await dispatch(
-        getallbatchAssessment({ filter: { limit: 4, page } })
-      );
-      setCount(res1.payload.count);
-    };
-
     fetchData();
-  }, [dispatch]);
+  }, [dispatch, page]);
 
   const assesment = useSelector((state) => state.assesment);
   console.log(assesment.assesment);
@@ -89,7 +88,7 @@ const Batches = ({ page }) => {
                 )}
               </tbody>
             </table>
-            <Pagination total={Count} pageSize={4} />
+            <Pagination total={Count} pageSize={8} />
           </div>
         </div>
       </div>
