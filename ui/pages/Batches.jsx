@@ -62,21 +62,19 @@ const Batches = ({ page }) => {
                   <th>Assessor Name</th>
                   <th>Date</th>
                   <th>Students Appeared</th>
-                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {assessments.length > 0 ? (
                   assessments.map((item) => (
                     <tr key={item._id} className="border-b border-quinary">
-                      <td>{item.batchId.name}</td>
-                      <td>{item.assessorName}</td>
+                      <td>{item?.batchId?.name || "N/A"}</td>
+                      <td>{item?.assessorName || "N/A"}</td>
                       <td>
-                        {new Date(item.assessmentDate).toLocaleDateString()}
+                        {new Date(item?.assessmentDate).toLocaleDateString() ||
+                          "N/A"}
                       </td>
-                      <td>{item.totalCandidatesAppeared}</td>
-
-                      <td>Current</td>
+                      <td>{item?.totalCandidatesAppeared || "N/A"}</td>
                     </tr>
                   ))
                 ) : (
