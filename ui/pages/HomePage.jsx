@@ -19,7 +19,7 @@ const HomePage = () => {
 
   const getallvalue = async () => {
     let res = await dispatch(getallstats());
-    setValue(res.payload);
+    setValue(res?.payload);
   };
   useEffect(() => {
     getallvalue();

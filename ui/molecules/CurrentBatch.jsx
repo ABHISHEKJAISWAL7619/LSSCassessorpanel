@@ -14,11 +14,11 @@ const CurrentBatch = () => {
   useEffect(() => {
     const fetchData = async () => {
       const res = await dispatch(getallbatchAssessment());
-      console.log("Fetched data:", res.payload?.data);
+      console.log("Fetched data:", res?.payload?.data);
 
       const data = res?.payload?.data || [];
 
-      if (data.length > 0) {
+      if (data?.length > 0) {
         setFirstAssessment(data[0]); // set first item
       }
     };
@@ -55,23 +55,23 @@ const CurrentBatch = () => {
               {firstAssessment ? (
                 <tr>
                   <td className="text-left">
-                    {firstAssessment?.batchId.name || "-"}
+                    {firstAssessment?.batchId?.name || "-"}
                   </td>
                   <td className="text-left">
-                    {firstAssessment.assessorName || "-"}
+                    {firstAssessment?.assessorName || "-"}
                   </td>
                   <td className="text-left">
-                    {firstAssessment.assessmentType || "-"}
+                    {firstAssessment?.assessmentType || "-"}
                   </td>
                   <td className="text-left">
-                    {firstAssessment.assessmentDate
+                    {firstAssessment?.assessmentDate
                       ? new Date(
-                          firstAssessment.assessmentDate
+                          firstAssessment?.assessmentDate
                         ).toLocaleDateString()
                       : "-"}
                   </td>
                   <td className="text-left">
-                    {firstAssessment.totalCandidatesAppeared || 0}
+                    {firstAssessment?.totalCandidatesAppeared || 0}
                   </td>
                   <td className="text-green-600 font-semibold text-left">
                     Current
